@@ -2,13 +2,13 @@ import { useState, useCallback } from 'react';
 import {
   View,
   Text,
-  Button,
   FlatList,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
 
 import { router, useFocusEffect } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   getReminders,
@@ -60,32 +60,72 @@ export default function HomeScreen() {
         Student Reminder App
       </Text>
 
-      <Button
-        title="Add Reminder"
+      <TouchableOpacity
+        style={styles.addButton}
         onPress={() => router.push('/add-reminder')}
-      />
+      >
+        <View style={styles.addButtonContent}>
+          <Ionicons
+            name="add-circle-outline"
+            size={20}
+            color="white"
+          />
+
+          <Text style={styles.addButtonText}>
+            Add Reminder
+          </Text>
+        </View>
+      </TouchableOpacity>
 
       <FlatList
         data={reminders}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text
-              style={[
-                styles.cardTitle,
-                item.completed && {
-                  textDecorationLine: 'line-through',
-                  color: 'gray',
-                },
-              ]}
-            >
-              {item.title}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons
+              name="calendar-outline"
+              size={80}
+              color="#bdc3c7"
+            />
+
+            <Text style={styles.emptyText}>
+              No reminders yet
             </Text>
 
-            <Text>{item.description}</Text>
+            <Text style={styles.emptySubText}>
+              Tap "Add Reminder" to create one
+            </Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <View style={styles.headerRow}>
+              <Ionicons
+                name="book-outline"
+                size={24}
+                color="#3498db"
+              />
+
+              <Text
+                style={[
+                  styles.cardTitle,
+                  item.completed && {
+                    textDecorationLine: 'line-through',
+                    color: 'gray',
+                  },
+                ]}
+              >
+                {item.title}
+              </Text>
+            </View>
+
+            <Text style={styles.description}>
+              {item.description}
+            </Text>
 
             <Text style={styles.dueDate}>
-              Due Date: {item.dueDate || 'No due date'}
+              📅 Due Date: {item.dueDate || 'No due date'}
             </Text>
 
             <Text
@@ -93,40 +133,41 @@ export default function HomeScreen() {
                 styles.status,
                 {
                   color: item.completed
-                    ? 'green'
-                    : 'orange',
+                    ? '#27ae60'
+                    : '#f39c12',
                 },
               ]}
             >
-              Status:{' '}
               {item.completed
-                ? 'Completed ✅'
-                : 'Pending ⏳'}
+                ? '✅ Completed'
+                : '⏳ Pending'}
             </Text>
 
-            <TouchableOpacity
-              style={styles.completeButton}
-              onPress={() =>
-                toggleCompleted(item.id)
-              }
-            >
-              <Text style={styles.completeText}>
-                {item.completed
-                  ? 'Mark as Pending'
-                  : 'Mark as Completed'}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.completeButton}
+                onPress={() =>
+                  toggleCompleted(item.id)
+                }
+              >
+                <Text style={styles.buttonText}>
+                  {item.completed
+                    ? 'Undo'
+                    : 'Complete'}
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() =>
-                deleteReminder(item.id)
-              }
-            >
-              <Text style={styles.deleteText}>
-                Delete
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() =>
+                  deleteReminder(item.id)
+                }
+              >
+                <Text style={styles.buttonText}>
+                  Delete
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
@@ -138,63 +179,117 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ecf0f1',
   },
 
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 15,
     textAlign: 'center',
+    marginBottom: 20,
+    color: '#2c3e50',
+  },
+
+  addButton: {
+    backgroundColor: '#3498db',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+
+  addButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 60,
+  },
+
+  emptyText: {
+    marginTop: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#7f8c8d',
+  },
+
+  emptySubText: {
+    color: '#95a5a6',
+    marginTop: 5,
   },
 
   card: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
     padding: 15,
-    marginTop: 12,
+    marginVertical: 8,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
 
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+  },
+
+  description: {
+    marginTop: 8,
+    fontSize: 15,
+    color: '#444',
   },
 
   dueDate: {
-    marginTop: 5,
-    color: '#555',
+    marginTop: 8,
+    color: '#666',
   },
 
   status: {
-    marginTop: 8,
+    marginTop: 10,
     fontWeight: 'bold',
+  },
+
+  buttonRow: {
+    flexDirection: 'row',
+    marginTop: 15,
+    gap: 10,
   },
 
   completeButton: {
-    marginTop: 10,
     backgroundColor: '#27ae60',
-    padding: 10,
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-  },
-
-  completeText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
   },
 
   deleteButton: {
-    marginTop: 10,
     backgroundColor: '#e74c3c',
-    padding: 10,
-    borderRadius: 5,
-    alignSelf: 'flex-start',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
   },
 
-  deleteText: {
+  buttonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
