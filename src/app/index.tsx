@@ -56,9 +56,19 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        Student Reminder App
-      </Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>
+          Student Reminder App
+        </Text>
+
+        <Text style={styles.subtitle}>
+          Organize your school tasks and deadlines
+        </Text>
+
+        <Text style={styles.counterText}>
+          Total Reminders: {reminders.length}
+        </Text>
+      </View>
 
       <TouchableOpacity
         style={styles.addButton}
@@ -67,110 +77,116 @@ export default function HomeScreen() {
         <View style={styles.addButtonContent}>
           <Ionicons
             name="add-circle-outline"
-            size={20}
-            color="white"
+            size={22}
+            color="#fff"
           />
-
           <Text style={styles.addButtonText}>
             Add Reminder
           </Text>
         </View>
       </TouchableOpacity>
 
-      <FlatList
-        data={reminders}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons
-              name="calendar-outline"
-              size={80}
-              color="#bdc3c7"
-            />
+      {reminders.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Ionicons
+            name="clipboard-outline"
+            size={80}
+            color="#bdc3c7"
+          />
 
-            <Text style={styles.emptyText}>
-              No reminders yet
-            </Text>
+          <Text style={styles.emptyText}>
+            No Reminders Yet
+          </Text>
 
-            <Text style={styles.emptySubText}>
-              Tap "Add Reminder" to create one
-            </Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.headerRow}>
-              <Ionicons
-                name="book-outline"
-                size={24}
-                color="#3498db"
-              />
+          <Text style={styles.emptySubText}>
+            Tap "Add Reminder" to create your
+            first task.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={reminders}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <View style={styles.headerRow}>
+                <Ionicons
+                  name="book-outline"
+                  size={24}
+                  color="#3498db"
+                />
+
+                <Text
+                  style={[
+                    styles.cardTitle,
+                    item.completed && {
+                      textDecorationLine:
+                        'line-through',
+                      color: 'gray',
+                    },
+                  ]}
+                >
+                  {item.title}
+                </Text>
+              </View>
+
+              <Text style={styles.description}>
+                {item.description}
+              </Text>
+
+              <Text style={styles.dueDate}>
+                📅 Due Date:{' '}
+                {item.dueDate || 'No due date'}
+              </Text>
 
               <Text
                 style={[
-                  styles.cardTitle,
-                  item.completed && {
-                    textDecorationLine: 'line-through',
-                    color: 'gray',
+                  styles.status,
+                  {
+                    backgroundColor:
+                      item.completed
+                        ? '#d4edda'
+                        : '#fff3cd',
+                    color: item.completed
+                      ? '#155724'
+                      : '#856404',
                   },
                 ]}
               >
-                {item.title}
+                {item.completed
+                  ? '✅ Completed'
+                  : '⏳ Pending'}
               </Text>
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.completeButton}
+                  onPress={() =>
+                    toggleCompleted(item.id)
+                  }
+                >
+                  <Text style={styles.buttonText}>
+                    {item.completed
+                      ? 'Undo'
+                      : 'Complete'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() =>
+                    deleteReminder(item.id)
+                  }
+                >
+                  <Text style={styles.buttonText}>
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-
-            <Text style={styles.description}>
-              {item.description}
-            </Text>
-
-            <Text style={styles.dueDate}>
-              📅 Due Date: {item.dueDate || 'No due date'}
-            </Text>
-
-            <Text
-              style={[
-                styles.status,
-                {
-                  color: item.completed
-                    ? '#27ae60'
-                    : '#f39c12',
-                },
-              ]}
-            >
-              {item.completed
-                ? '✅ Completed'
-                : '⏳ Pending'}
-            </Text>
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.completeButton}
-                onPress={() =>
-                  toggleCompleted(item.id)
-                }
-              >
-                <Text style={styles.buttonText}>
-                  {item.completed
-                    ? 'Undo'
-                    : 'Complete'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() =>
-                  deleteReminder(item.id)
-                }
-              >
-                <Text style={styles.buttonText}>
-                  Delete
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -178,115 +194,138 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F4F7FC',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+
+  header: {
+    backgroundColor: '#3498db',
+    borderRadius: 20,
     padding: 20,
-    backgroundColor: '#ecf0f1',
+    marginBottom: 20,
   },
 
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#2c3e50',
+    color: '#fff',
+  },
+
+  subtitle: {
+    color: '#ecf0f1',
+    marginTop: 5,
+    fontSize: 15,
+  },
+
+  counterText: {
+    color: '#fff',
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: '600',
   },
 
   addButton: {
-    backgroundColor: '#3498db',
-    padding: 14,
-    borderRadius: 12,
+    backgroundColor: '#2ecc71',
+    borderRadius: 15,
+    paddingVertical: 14,
     alignItems: 'center',
     marginBottom: 15,
+    elevation: 3,
   },
 
   addButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
 
   addButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
 
   emptyContainer: {
     alignItems: 'center',
-    marginTop: 60,
+    justifyContent: 'center',
+    marginTop: 80,
   },
 
   emptyText: {
-    marginTop: 10,
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#7f8c8d',
+    marginTop: 15,
   },
 
   emptySubText: {
     color: '#95a5a6',
     marginTop: 5,
+    textAlign: 'center',
   },
 
   card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 15,
-    padding: 15,
-    marginVertical: 8,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 12,
+    elevation: 5,
   },
 
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
 
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginLeft: 10,
+    flex: 1,
   },
 
   description: {
-    marginTop: 8,
+    marginTop: 10,
+    color: '#555',
     fontSize: 15,
-    color: '#444',
+    lineHeight: 22,
   },
 
   dueDate: {
-    marginTop: 8,
-    color: '#666',
+    marginTop: 10,
+    color: '#34495e',
+    fontWeight: '500',
   },
 
   status: {
     marginTop: 10,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    overflow: 'hidden',
     fontWeight: 'bold',
   },
 
   buttonRow: {
     flexDirection: 'row',
     marginTop: 15,
-    gap: 10,
   },
 
   completeButton: {
     backgroundColor: '#27ae60',
+    borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 8,
+    marginRight: 10,
   },
 
   deleteButton: {
     backgroundColor: '#e74c3c',
+    borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 8,
   },
 
   buttonText: {
